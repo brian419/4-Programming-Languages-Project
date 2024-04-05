@@ -1,36 +1,41 @@
 Object subclass: Employee [
     | firstName lastName |
-    
-    Employee class >> new: first last: last [
-        ^ super new initialize: first last: last
+
+    Employee class >> newWithFirstName: first lastName: last [
+        ^self new initializeWithFirstName: first lastName: last
     ]
 
-    initialize: first last: last [
+    initializeWithFirstName: first lastName: last [
         firstName := first.
         lastName := last.
     ]
 
-    getFirstName [
-        ^ firstName
-    ]
-
     setFirstName: first [
-        firstName := first
+        firstName := first.
     ]
 
-    getLastName [
-        ^ lastName
+    getFirstName [
+        ^firstName.
     ]
 
     setLastName: last [
-        lastName := last
+        lastName := last.
     ]
 
-    getEarning [
-        self subclassResponsibility
+    getLastName [
+        ^lastName.
     ]
 
     getInfo [
-        ^ firstName, ' ', lastName
+        ^firstName, ' ', lastName
+    ]
+
+    getEarning [
+        self subclassResponsibility.
     ]
 ]
+
+
+
+
+

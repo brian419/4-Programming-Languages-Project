@@ -5,19 +5,61 @@ Employee subclass: CommissionEmployee [
         ^ super new: first last: last initializeBasePay: basePay sales: sales rate: rate
     ]
 
-    initializeBasePay: basePay sales: sales rate: rate [
-        minimalWeeklyPay := basePay.
-        salesAmount := sales.
+
+    initializeWeeklyPay: basePay [
+        minimalWeeklyPay := basePay asNumber.
+    ]
+
+    initializeSalesAmount: sales [
+        salesAmount := sales asNumber.
+    ]
+
+    initializeCommissionRate: rate [
         commissionRate := rate.
     ]
 
+    
+
     getEarning [
-        ^ (salesAmount * commissionRate) > minimalWeeklyPay
+
+        | earning |
+        salesAmount := salesAmount asNumber.
+        commissionRate := commissionRate asNumber.
+        minimalWeeklyPay := minimalWeeklyPay asNumber.
+        earning := (salesAmount * commissionRate) > minimalWeeklyPay
             ifTrue: [salesAmount * commissionRate]
-            ifFalse: [minimalWeeklyPay]
+            ifFalse: [minimalWeeklyPay].
+        "Transcript show: 'earned: $', earning printString; cr.
+        Transcript show: ' '; cr."
+        ^ earning.
+
     ]
 
+
+
+    "getInfo [
+        Transcript show: 'Commission Employee: ', (super getInfo); cr.
+        Transcript show: 'Minimum salary: ', minimalWeeklyPay printString, ', ', 'Sales amount: ', salesAmount printString, ', ', 'Comission rate: ', commissionRate; cr.
+        
+    ]"
+
     getInfo [
-        ^ 'Commission Employee: ', (super getInfo), ' minimum salary: ', minimalWeeklyPay printString, ', sales amount: ', salesAmount printString, ', commission rate: ', (commissionRate * 100) printString, '%'
+        ^ (super getInfo).
     ]
+
+    getMinimumSalary [
+        ^ minimalWeeklyPay.
+    ]
+
+    getSalesAmount [
+        ^ salesAmount.
+    ]
+
+    getCommissionRate [
+        ^ commissionRate.
+    ]
+
 ]
+
+
+

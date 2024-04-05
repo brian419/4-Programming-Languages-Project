@@ -5,22 +5,60 @@ Employee subclass: HourlyEmployee [
         ^ super new: first last: last initializeHours: hours rate: rate
     ]
 
-    initializeHours: hours rate: rate [
-        hoursWorked := hours.
-        hourlyRate := rate.
+    initializeHours: hours [
+        hoursWorked := hours asNumber.
     ]
 
-    getEarning [
-        | earning |
-        earning := hoursWorked <= 40
-            ifTrue: [hoursWorked * hourlyRate]
-            ifFalse: [hoursWorked <= 50
-                        ifTrue: [40 * hourlyRate + (hoursWorked - 40) * hourlyRate * 1.5]
-                        ifFalse: [40 * hourlyRate + 10 * hourlyRate * 1.5 + (hoursWorked - 50) * hourlyRate * 2]].
-        ^ earning
+    initializeRate: rate [
+        hourlyRate := rate asNumber.
     ]
+
+    "getInfo [
+        Transcript show: 'Hourly Employee: ', (super getInfo); cr.
+        Transcript show: 'Hours Worked: ', hoursWorked printString, ', ', 'Hourly Rate: ', hourlyRate printString; cr.
+        
+    ]"
 
     getInfo [
-        ^ 'Hourly Employee: ', (super getInfo), ' Hours Worked: ', hoursWorked printString, ', Hourly Rate: ', hourlyRate printString
+        ^ super getInfo.
     ]
+
+    getHoursWorked [
+        ^ hoursWorked
+    ]
+
+    getHourlyRate [
+        ^ hourlyRate
+    ]
+
+
+    getEarning [
+        | earning earningpart1 earningpart2 earningpart3 earningpart4 earningpart5|
+        hoursWorked := hoursWorked asNumber. 
+        hourlyRate := hourlyRate asNumber.  
+
+        hoursWorked <= 40 ifTrue: [
+            earning := hoursWorked * hourlyRate.
+        ] ifFalse: [
+            hoursWorked <= 50 ifTrue: [
+                earningpart1 := 40 * hourlyRate.
+                earningpart2 := (hoursWorked - 40) * hourlyRate * 1.5.
+                earning := earningpart1 + earningpart2.
+                "earning := 40 * hourlyRate + (hoursWorked - 40) * hourlyRate * 1.5."
+            ] ifFalse: [
+                
+                earningpart3 := (hoursWorked - 50) * hourlyRate * 2.
+                earningpart4 := 10 * hourlyRate * 1.5.
+                earningpart5 := 40 * hourlyRate.
+                earning := earningpart3 + earningpart4 + earningpart5.
+                "earning := 40 * hourlyRate + 10 * hourlyRate * 1.5 + (hoursWorked - 50) * hourlyRate * 2."
+            ]
+        ].
+        
+        ^ earning.
+    ]
+
 ]
+
+
+        

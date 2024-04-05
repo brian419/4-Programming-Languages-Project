@@ -6,14 +6,29 @@ Employee subclass: SalariedEmployee [
     ]
 
     initializeSalary: salary [
-        weeklySalary := salary.
+        weeklySalary := salary asNumber.
     ]
 
-    getEarning [
-        ^ weeklySalary
-    ]
+
+
+    "getInfo [
+        Transcript show: 'Salaried Employee: ', (super getInfo); cr.
+        Transcript show: 'Weekly Salary: ', weeklySalary printString; cr.
+    ]"
 
     getInfo [
-        ^ 'Salaried Employee: ', (super getInfo), ' Weekly Salary: ', weeklySalary printString
+        ^ super getInfo.
     ]
+
+    "getEarning [
+        
+        Transcript show: 'earned: $', weeklySalary printString; cr.
+        Transcript show: ' '; cr.
+        ^ weeklySalary
+    ]"
+
+    ""getEarning [
+        ^ weeklySalary
+    ]""
 ]
+
