@@ -4,34 +4,35 @@ FileStream fileIn: 'hourly.st'.
 FileStream fileIn: 'commission.st'.
 
 |f countEmployees a tokens employees salaryEmployee hourlyEmployee commissionEmployee args|
-f := FileStream open: Smalltalk arguments first mode: FileStream read.
 args := Smalltalk arguments.
-args isEmpty ifTrue: [
-    Transcript show: 'Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action'; nl.
-    Transcript show: 'or'; nl.
-    Transcript show: 'Usage: gst employee.st salaried.st hourly.st commission.st -f main.st action datafile operator threshold'; nl.
-    Transcript show: 'Valid actions: count print min max total avg'; nl.
-    Transcript show: 'Valid operators: eq ne gt ge lt le'; nl.
-    
-    "Transcript show: ''; cr."
-].
+"f := FileStream open: args first mode: FileStream read.
 f isNil ifTrue: [
     Transcript show: 'Unable to open xxxx.dat for reading'; nl.
     ObjectMemory quit.
+]."
 
-
+[   f := FileStream open: args first mode: FileStream read.
+    f isNil ifTrue: [
+        Transcript show: 'Unable to open xxxx.dat for reading'; nl.
+        ObjectMemory quit.
+    ].
+] on: Error do: [
+    Transcript show: 'Unable to open xxxx.dat for reading'; nl.
+    ObjectMemory quit.
 ].
 
+    
+
+
 countEmployees := 0.
-a := f nextLine. 
 employees := Array new.
 
 
 [f atEnd ] whileFalse: [
+    a := f nextLine.
 
-    
     tokens:= a subStrings.
-    a := f nextLine. 
+
 
     (tokens at: 1) = 'salaried' ifTrue: [
         employees := employees, {tokens}.
@@ -48,22 +49,21 @@ employees := Array new.
         countEmployees := countEmployees + 1.
 
     ].
+
 ].
-f close.
 
 
-
-
-args := Smalltalk arguments.
-args isEmpty ifTrue: [
+(Smalltalk arguments size = 0 or: [Smalltalk arguments size = 1]) ifTrue: [
     Transcript show: 'Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action'; nl.
     Transcript show: 'or'; nl.
     Transcript show: 'Usage: gst employee.st salaried.st hourly.st commission.st -f main.st action datafile operator threshold'; nl.
+    Transcript show: ''; nl.
     Transcript show: 'Valid actions: count print min max total avg'; nl.
     Transcript show: 'Valid operators: eq ne gt ge lt le'; nl.
+    ObjectMemory quit.
     
-    "Transcript show: ''; cr."
-] ifFalse: [
+] 
+ifFalse: [
     |  minEmployee minEarning maxEmployee maxEarning totalEarnings avgEarnings operator threshold employee |
     (Smalltalk arguments at: 1) = (Smalltalk arguments at: 1) ifFalse: [
         
@@ -91,6 +91,273 @@ args isEmpty ifTrue: [
             (Smalltalk arguments size < 3) ifTrue: [
                 Transcript show: 'The number of employees is: ', countEmployees printString; nl.
             ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'ne']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) ~= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) ~= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) ~= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are not equal to the threshold is: ', countEmployees printString; nl.
+
+            ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'eq']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) = threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) = threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) = threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are equal to the threshold is: ', countEmployees printString; nl.
+            ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'gt']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) > threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) > threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) > threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are greater than the threshold is: ', countEmployees printString; nl.
+            ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'ge']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) >= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) >= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) >= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are greater than or equal to the threshold is: ', countEmployees printString; nl.
+            ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'lt']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) < threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) < threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) < threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are less than the threshold is: ', countEmployees printString; nl.
+            ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'le']) ifTrue: [
+                countEmployees := 0.
+                threshold := (Smalltalk arguments at: 4) asNumber.
+                employees do: [:each | 
+                    employee := nil.
+                    (each at: 1) = 'salaried' ifTrue: [
+                        salaryEmployee := SalariedEmployee new.
+                        salaryEmployee setFirstName: (each at: 2).
+                        salaryEmployee setLastName: (each at: 3).
+                        salaryEmployee initializeSalary: (each at: 4).
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        hourlyEmployee := HourlyEmployee new.
+                        hourlyEmployee setFirstName: (each at: 2).
+                        hourlyEmployee setLastName: (each at: 3).
+                        hourlyEmployee initializeHours: (each at: 4).
+                        hourlyEmployee initializeRate: (each at: 5).
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        commissionEmployee := CommissionEmployee new.
+                        commissionEmployee setFirstName: (each at: 2).
+                        commissionEmployee setLastName: (each at: 3).
+                        commissionEmployee initializeWeeklyPay: (each at: 4).
+                        commissionEmployee initializeSalesAmount: (each at: 5).
+                        commissionEmployee initializeCommissionRate: (each at: 6).
+                    ].
+                    (each at: 1) = 'salaried' ifTrue: [
+                        (salaryEmployee getEarning) <= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'hourly' ifTrue: [
+                        (hourlyEmployee getEarning) <= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                    (each at: 1) = 'commission' ifTrue: [
+                        (commissionEmployee getEarning) <= threshold ifTrue: [
+                            countEmployees := countEmployees + 1.
+                        ].
+                    ].
+                ].
+                Transcript show: 'The number of employees whose earnings are less than or equal to the threshold is: ', countEmployees printString; nl.
+            ].
+
+    
         ].
         (Smalltalk arguments at: 2) = 'print' ifTrue: [
             (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'ge']) ifTrue: [
@@ -707,7 +974,7 @@ args isEmpty ifTrue: [
             (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'gt']) ifTrue: [
                 threshold := (Smalltalk arguments at: 4) asNumber.
                 minEarning := nil.
-                minEmployee := nil.
+                minEmployee :=  OrderedCollection new.
 
                 employees do: [:each |
                     | earning |
@@ -1582,6 +1849,234 @@ args isEmpty ifTrue: [
                 avgEarnings := totalEarnings / countEmployees.
                 Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
             ].
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'le']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) <= threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+            "lt: print out the average earnings of all employees whose earnings are less than the threshold"
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'lt']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) < threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+            "ge: print out the average earnings of all employees whose earnings are greater than or equal to the threshold"
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'ge']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) >= threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+            "gt: print out the average earnings of all employees whose earnings are greater than the threshold"
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'gt']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) > threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+            "ne: print out the average earnings of all employees whose earnings are not equal to the threshold"
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'ne']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) ~= threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+            "eq: print out the average earnings of all employees whose earnings are equal to the threshold"
+            (Smalltalk arguments size >= 3 and: [(Smalltalk arguments at: 3) = 'eq']) ifTrue: [
+                threshold := (Smalltalk arguments at: 4) asNumber.
+
+                countEmployees := 0.
+                totalEarnings := 0.0.
+                avgEarnings := 0.0.
+
+                employees do: [:each | 
+                    | employee |
+                    employee := nil.
+
+                    (each at: 1) = 'salaried' ifTrue: [
+                        employee := SalariedEmployee new.
+                        employee initializeSalary: (each at: 4).
+                    ].
+
+                    (each at: 1) = 'hourly' ifTrue: [
+                        employee := HourlyEmployee new.
+                        employee initializeHours: (each at: 4).
+                        employee initializeRate: (each at: 5).
+                    ].
+
+                    (each at: 1) = 'commission' ifTrue: [
+                        employee := CommissionEmployee new.
+                        employee initializeWeeklyPay: (each at: 4).
+                        employee initializeSalesAmount: (each at: 5).
+                        employee initializeCommissionRate: (each at: 6).
+                    ].
+
+                    (employee getEarning) = threshold ifTrue: [
+                        totalEarnings := totalEarnings + (employee getEarning).
+                        countEmployees := countEmployees + 1.
+                    ].
+                ].
+                avgEarnings := totalEarnings / countEmployees.
+                Transcript show: 'Average earnings of all employees: $', avgEarnings printString; nl.
+            ].
+
         ].
     ].
 
